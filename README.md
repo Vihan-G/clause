@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# clause
 
-## Getting Started
+Paste any contract. Get the 10 clauses that could actually hurt you, explained in plain English.
 
-First, run the development server:
+No login. No document type restriction. Lease, NDA, employment offer, freelance agreement, terms of service, subscription contract — anything. You paste text, you get a prioritized list of risks with the exact clause quoted and a plain-English explanation of why it matters.
+
+## What it does
+
+- Streams a structured analysis from Claude as soon as the first risk is ready — no spinner-on-blank-screen
+- Returns 10 risks ordered by severity (critical → low), each with the exact quote, plain-English explanation, why-it-matters, and whether the clause is typically negotiable
+- Works on mobile from 375px up
+- Includes a "Load example lease" button so you can try it without pasting anything
+
+## Tech stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind v4
+- `@anthropic-ai/sdk` with streaming
+- Zod for request validation
+- Deployed on Vercel
+
+## Run locally
 
 ```bash
+npm install
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/
+    page.tsx                  ← input + streaming results
+    layout.tsx
+    globals.css               ← warm off-white background, fade-up animation
+    api/
+      analyze/route.ts        ← streaming NDJSON endpoint
+  components/
+    ContractInput.tsx
+    RiskCard.tsx              ← severity color, quote, plain-English explanation
+    RiskSkeleton.tsx          ← pulse placeholder while a card is loading
+    SeverityBadge.tsx
+    StreamingResults.tsx      ← swaps skeletons → cards as they stream in
+    SummaryHeader.tsx         ← "X critical · Y high · Z medium · W low"
+    Disclaimer.tsx
+  lib/
+    anthropic.ts              ← Anthropic client + streaming generator
+    prompts.ts                ← system prompt + example contract
+    parse-stream.ts           ← incremental NDJSON parser
+    types.ts                  ← RiskItem schema + isRiskItem guard
+```
 
-## Learn More
+## Disclaimer
 
-To learn more about Next.js, take a look at the following resources:
+This is not legal advice. Always consult a qualified attorney before signing.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
